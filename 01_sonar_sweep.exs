@@ -1,21 +1,17 @@
 defmodule Sonar do
-  def count([]), do: 0
-  def count([first | rest]), do: count(rest, first, 0)
-  def count([], _, result), do: result
-  def count([curr | rest], prev, result) when curr > prev, do: count(rest, curr, result + 1)
-  def count([curr | rest], _, result), do: count(rest, curr, result)
+  def count(depths) do
+    depths
+    |> Stream.chunk_every(2, 1, :discard)
+    |> Enum.count(fn [left, right] -> left < right end)
+  end
 end
 
 defmodule AdvancedSonar do
   def count(depths) do
     depths
     |> Stream.chunk_every(3, 1, :discard)
-    |> Stream.map(fn chunk -> Enum.sum(chunk) end)
-    |> Enum.reduce({nil, 0}, fn
-      curr, {prev, result} when curr > prev -> {curr, result + 1}
-      curr, {_, result} -> {curr, result}
-    end)
-    |> elem(1)
+    |> Stream.chunk_every(2, 1, :discard)
+    |> Enum.count(fn [[left, _, _], [_, _, right]] -> left < right end)
   end
 end
 
