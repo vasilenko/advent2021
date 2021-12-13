@@ -14,7 +14,7 @@ defmodule Origami do
     min_y..max_y
     |> Enum.map(fn y ->
       min_x..max_x
-      |> Enum.map(fn x -> if MapSet.member?(data, {x, y}), do: "◻️", else: " " end)
+      |> Enum.map(fn x -> if MapSet.member?(data, {x, y}), do: "🍆", else: "  " end)
       |> Enum.join()
     end)
     |> Enum.join("\n")
