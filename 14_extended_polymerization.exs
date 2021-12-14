@@ -1,33 +1,30 @@
 defmodule Polymer do
-  def calculate(template, db, max_step) do
-    last = List.last(template)
-
-    {{_, min}, {_, max}} =
+  def calculate(template, db, steps) do
+    template_pairs =
       template
       |> Enum.chunk_every(2, 1, :discard)
       |> Enum.frequencies()
-      |> walk(db, 0, max_step)
-      |> Enum.reduce(%{}, fn {[f, _], count}, acc ->
-        Map.update(acc, f, count, &(&1 + count))
-      end)
+
+    last = List.last(template)
+
+    {{_, min}, {_, max}} =
+      1..steps
+      |> Enum.reduce(template_pairs, fn _, prev -> count_step_pairs(prev, db) end)
+      |> Enum.reduce(%{}, fn {[f, _], count}, acc -> Map.update(acc, f, count, &(&1 + count)) end)
       |> Map.update(last, 1, &(&1 + 1))
       |> Enum.min_max_by(&elem(&1, 1))
 
     max - min
   end
 
-  defp walk(freqs, _, max_step, max_step), do: freqs
-
-  defp walk(freqs, db, step, max_step) do
-    freqs
-    |> Enum.reduce(%{}, fn {[f, l], count}, acc ->
+  defp count_step_pairs(pairs, db) do
+    Enum.reduce(pairs, %{}, fn {[f, l], count}, acc ->
       m = db[[f, l]]
 
       acc
       |> Map.update([f, m], count, &(&1 + count))
       |> Map.update([m, l], count, &(&1 + count))
     end)
-    |> walk(db, step + 1, max_step)
   end
 end
 
